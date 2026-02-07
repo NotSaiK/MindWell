@@ -1,4 +1,4 @@
-# MindWell – Secure Mental Wellness Application
+# MindWell - Secure Mental Wellness Application
 
 ## Project Overview
 
@@ -26,11 +26,15 @@ MindWell addresses this concern by implementing encryption at rest, ensuring tha
 ### Mood Tracking and Analytics
 - Daily mood logging on a scale of 1 to 10.
 - Visualization of mood history using a line chart.
+- Weekly and monthly average mood summaries.
 - Persistent storage of mood data across sessions.
 
 ### Wellness Tools
 - Guided breathing exercise with smooth visual animation.
 - Designed to help users relax and manage stress.
+
+### Guided Prompts
+- Daily journaling prompt to help users get started.
 
 ### User Experience
 - Minimalist and calming interface.
@@ -106,6 +110,7 @@ npm run dev
 cd frontend
 npm install
 npm start
+```
 
 ## Author
 
