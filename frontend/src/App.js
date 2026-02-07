@@ -11,6 +11,9 @@ import {
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
+// Base API URL from Vercel environment variable
+const API_URL = process.env.REACT_APP_API_URL;
+
 function App() {
   // UI state
   const [darkMode, setDarkMode] = useState(false);
@@ -32,7 +35,7 @@ function App() {
       return;
     }
 
-    await axios.post("http://localhost:5000/api/journal/create", {
+    await axios.post(`${API_URL}/api/journal/create`, {
       userId: "testuser",
       text,
       secret,
@@ -48,7 +51,7 @@ function App() {
       return;
     }
 
-    const res = await axios.post("http://localhost:5000/api/journal/get", {
+    const res = await axios.post(`${API_URL}/api/journal/get`, {
       userId: "testuser",
       secret,
     });
@@ -58,7 +61,7 @@ function App() {
 
   // -------- MOOD FUNCTIONS --------
   const saveMood = async () => {
-    await axios.post("http://localhost:5000/api/mood/save", {
+    await axios.post(`${API_URL}/api/mood/save`, {
       userId: "testuser",
       mood,
     });
@@ -66,7 +69,7 @@ function App() {
   };
 
   const fetchMoodHistory = async () => {
-    const res = await axios.post("http://localhost:5000/api/mood/history", {
+    const res = await axios.post(`${API_URL}/api/mood/history`, {
       userId: "testuser",
     });
     setMoodHistory(res.data);
