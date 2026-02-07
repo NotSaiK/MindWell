@@ -1,70 +1,114 @@
-# Getting Started with Create React App
+# MindWell – Secure Mental Wellness Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Overview
 
-## Available Scripts
+MindWell is a privacy-focused mental wellness web application developed as part of a Full Stack Developer Internship project. The application provides users with a secure environment to journal personal thoughts, track emotional well-being, and practice relaxation techniques, with data privacy treated as a core system requirement rather than an optional feature.
 
-In the project directory, you can run:
+The project emphasizes secure data handling, clear system architecture, and real-world deployment practices.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Problem Statement
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Digital journaling applications often store highly sensitive personal data. Users may be hesitant to use such platforms due to concerns regarding data exposure, unauthorized database access, or internal misuse.
 
-### `npm test`
+MindWell addresses this concern by implementing encryption at rest, ensuring that journal entries remain unreadable even to database administrators unless the correct decryption key is provided.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Key Features
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Secure Journaling
+- Users can create personal journal entries protected by a secret key.
+- Journal content is encrypted before being stored in the database.
+- Decryption occurs only when the correct secret key is supplied by the user.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Mood Tracking and Analytics
+- Daily mood logging on a scale of 1 to 10.
+- Visualization of mood history using a line chart.
+- Persistent storage of mood data across sessions.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Wellness Tools
+- Guided breathing exercise with smooth visual animation.
+- Designed to help users relax and manage stress.
 
-### `npm run eject`
+### User Experience
+- Minimalist and calming interface.
+- Light and dark mode support for improved usability.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Data Export
+- Users can export all personal data, including journal entries and mood logs, in JSON format.
+- Supports user data ownership and transparency requirements (GDPR-aligned).
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Security and Encryption Design
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+MindWell implements AES-based encryption to secure journal content:
 
-## Learn More
+- Journal text is encrypted on the server before being persisted to MongoDB.
+- The database stores only encrypted ciphertext rather than readable plain text.
+- Decryption is performed only when the user provides the correct secret key.
+- This approach ensures encryption at rest and protects sensitive user data even if database access is compromised.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Screenshots demonstrating encrypted database entries are included as proof of implementation.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## Technical Architecture
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Frontend
+- React.js
+- Chart.js for data visualization
+- CSS animations for breathing exercises
+- Deployed on Vercel
 
-### Analyzing the Bundle Size
+### Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Crypto-js (AES encryption)
+- Deployed on Render
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Live Application
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Frontend (Vercel):**  
+  https://mind-well-mu.vercel.app/
 
-### Advanced Configuration
+- **Backend (Render):**  
+  https://mindwell-backend-v47t.onrender.com
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## Screenshots and Proof of Functionality
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+The documentation includes screenshots of:
+- Application user interface in light mode
+- Application user interface in dark mode
+- Breathing exercise animation
+- Mood tracking chart
+- MongoDB database showing encrypted journal entries
+- Exported JSON file containing user data
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Running the Project Locally
+
+```bash
+# Backend
+cd backend
+npm install
+npm run dev
+
+# Frontend
+cd frontend
+npm install
+npm start
+
+## Author
+
+Sai Krishnan  
+Full Stack Developer Intern
+Persevex
