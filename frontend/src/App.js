@@ -14,28 +14,10 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 // Base API URL from Vercel environment variable
 const API_URL = process.env.REACT_APP_API_URL;
 
-const DAILY_PROMPTS = [
-  "What made you smile today?",
-  "What is one thing you are grateful for right now?",
-  "What did you do today that you are proud of?",
-  "What is one challenge you handled well recently?",
-  "What is one small act of kindness you received or gave?",
-  "What do you want to let go of today?",
-  "What is one thing you want to improve tomorrow?",
-];
-
-const getDailyPrompt = () => {
-  const dayIndex = Math.floor(
-    new Date().setHours(0, 0, 0, 0) / (24 * 60 * 60 * 1000)
-  );
-  return DAILY_PROMPTS[dayIndex % DAILY_PROMPTS.length];
-};
-
 function App() {
   // UI state
   const [darkMode, setDarkMode] = useState(false);
   const [breathing, setBreathing] = useState(false);
-  const [dailyPrompt] = useState(() => getDailyPrompt());
 
   // Journal state
   const [text, setText] = useState("");
@@ -93,45 +75,6 @@ function App() {
     setMoodHistory(res.data);
   };
 
-  const exportData = async () => {
-    try {
-      const res = await axios.post(`${API_URL}/api/export/export`, {
-        userId: "testuser",
-      });
-
-      const blob = new Blob([JSON.stringify(res.data, null, 2)], {
-        type: "application/json",
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `mindwell-export-${new Date()
-        .toISOString()
-        .slice(0, 10)}.json`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      alert("Export failed. Please try again.");
-    }
-  };
-
-  const getAverageMood = (items) => {
-    if (!items.length) return "N/A";
-    const sum = items.reduce((total, item) => total + item.mood, 0);
-    return (sum / items.length).toFixed(1);
-  };
-
-  const getRecentMoods = (days) => {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - (days - 1));
-    return moodHistory.filter(
-      (item) => new Date(item.createdAt) >= cutoff
-    );
-  };
-
   useEffect(() => {
     fetchMoodHistory();
   }, []);
@@ -173,33 +116,12 @@ function App() {
             color: darkMode ? "#e5e7eb" : "#000",
           }}
         >
-          {darkMode ? "Light Mode" : "Dark Mode"}
+          {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
         </button>
 
         <h2 style={{ textAlign: "center", marginBottom: 20 }}>
           MindWell Journal
         </h2>
-
-        {/* DAILY PROMPT */}
-        <div
-          style={{
-            background: darkMode ? "#0b1220" : "#eef2ff",
-            borderRadius: 10,
-            padding: 12,
-            marginBottom: 20,
-            border: darkMode ? "1px solid #1f2937" : "1px solid #c7d2fe",
-          }}
-        >
-          <p style={{ margin: 0, fontWeight: "600" }}>Daily Prompt</p>
-          <p
-            style={{
-              margin: "6px 0 0",
-              color: darkMode ? "#cbd5f5" : "#4c51bf",
-            }}
-          >
-            {dailyPrompt}
-          </p>
-        </div>
 
         {/* SECRET KEY */}
         <input
@@ -336,16 +258,6 @@ function App() {
           />
         )}
 
-        {/* AGGREGATION */}
-        <div style={{ marginTop: 16 }}>
-          <p style={{ margin: "6px 0" }}>
-            Weekly Average: {getAverageMood(getRecentMoods(7))}
-          </p>
-          <p style={{ margin: "6px 0" }}>
-            Monthly Average: {getAverageMood(getRecentMoods(30))}
-          </p>
-        </div>
-
         {/* BREATHING SECTION */}
         <hr style={{ margin: "30px 0" }} />
 
@@ -383,31 +295,6 @@ function App() {
             }}
           />
         )}
-
-        {/* DATA EXPORT */}
-        <hr style={{ margin: "30px 0" }} />
-
-        <h3>Export Your Data</h3>
-
-        <p style={{ color: darkMode ? "#94a3b8" : "#555" }}>
-          Download your journals and mood logs as JSON.
-        </p>
-
-        <button
-          onClick={exportData}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 8,
-            border: "none",
-            background: "#f59e0b",
-            color: "#1f2937",
-            fontWeight: "600",
-            cursor: "pointer",
-          }}
-        >
-          Export JSON
-        </button>
       </div>
     </div>
   );
