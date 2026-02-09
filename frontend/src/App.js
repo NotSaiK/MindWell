@@ -11,29 +11,22 @@ import {
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
-// Base API URL from Vercel environment variable
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function App() {
-  // UI state
   const [darkMode, setDarkMode] = useState(false);
   const [breathing, setBreathing] = useState(false);
 
-  // Journal state
   const [text, setText] = useState("");
   const [secret, setSecret] = useState("");
   const [entries, setEntries] = useState([]);
 
-  // Mood state
   const [mood, setMood] = useState(5);
   const [moodHistory, setMoodHistory] = useState([]);
 
-  // -------- JOURNAL FUNCTIONS --------
   const saveJournal = async () => {
-    if (!text || !secret) {
-      alert("Please enter secret key and journal text");
-      return;
-    }
+    if (!text || !secret) return alert("Enter secret key and journal text");
 
     await axios.post(`${API_URL}/api/journal/create`, {
       userId: "testuser",
@@ -42,14 +35,10 @@ function App() {
     });
 
     setText("");
-    alert("Journal saved securely");
   };
 
   const loadJournals = async () => {
-    if (!secret) {
-      alert("Enter secret key first");
-      return;
-    }
+    if (!secret) return alert("Enter secret key first");
 
     const res = await axios.post(`${API_URL}/api/journal/get`, {
       userId: "testuser",
@@ -59,7 +48,6 @@ function App() {
     setEntries(res.data);
   };
 
-  // -------- MOOD FUNCTIONS --------
   const saveMood = async () => {
     await axios.post(`${API_URL}/api/mood/save`, {
       userId: "testuser",
@@ -75,229 +63,232 @@ function App() {
     setMoodHistory(res.data);
   };
 
+  const exportData = async () => {
+    const res = await axios.post(`${API_URL}/api/export`, {
+      userId: "testuser",
+    });
+
+    const blob = new Blob(
+      [JSON.stringify(res.data, null, 2)],
+      { type: "application/json" }
+    );
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mindwell-data.json";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetchMoodHistory();
   }, []);
+
+  const bg = darkMode ? "#0f172a" : "#f8fafc";
+  const card = darkMode ? "#1e293b" : "#ffffff";
+  const textColor = darkMode ? "#e5e7eb" : "#0f172a";
+  const muted = darkMode ? "#94a3b8" : "#64748b";
+  const primary = "#6366f1";
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: darkMode ? "#0f172a" : "#f4f6fb",
+        background: bg,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: 20,
-        transition: "background 0.3s ease",
+        padding: 24,
       }}
     >
+      <style>
+        {`
+          @keyframes breathe {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+          }
+        `}
+      </style>
+
       <div
         style={{
           width: "100%",
-          maxWidth: 560,
-          background: darkMode ? "#1e293b" : "#ffffff",
-          color: darkMode ? "#e5e7eb" : "#000",
-          padding: 30,
-          borderRadius: 14,
-          boxShadow: "0 12px 35px rgba(0,0,0,0.15)",
-          transition: "all 0.3s ease",
+          maxWidth: 640,
+          background: card,
+          color: textColor,
+          borderRadius: 18,
+          padding: 32,
+          boxShadow: "0 20px 50px rgba(0,0,0,0.12)",
         }}
       >
-        {/* DARK MODE TOGGLE */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            marginBottom: 20,
-            padding: "8px 12px",
-            borderRadius: 8,
-            border: "none",
-            cursor: "pointer",
-            background: darkMode ? "#334155" : "#e5e7eb",
-            color: darkMode ? "#e5e7eb" : "#000",
-          }}
-        >
-          {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-        </button>
-
-        <h2 style={{ textAlign: "center", marginBottom: 20 }}>
-          MindWell Journal
-        </h2>
-
-        {/* SECRET KEY */}
-        <input
-          type="password"
-          placeholder="Your secret key"
-          value={secret}
-          onChange={(e) => setSecret(e.target.value)}
-          style={{
-            width: "100%",
-            padding: 12,
-            marginBottom: 15,
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            fontSize: 14,
-          }}
-        />
-
-        {/* JOURNAL */}
-        <textarea
-          placeholder="Write your thoughts..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={5}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            marginBottom: 15,
-            resize: "none",
-            fontSize: 14,
-          }}
-        />
-
-        <button
-          onClick={saveJournal}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 8,
-            border: "none",
-            background: "#5b6cff",
-            color: "#fff",
-            fontWeight: "600",
-            cursor: "pointer",
-            marginBottom: 10,
-          }}
-        >
-          Save Journal
-        </button>
-
-        <button
-          onClick={loadJournals}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 8,
-            border: "1px solid #5b6cff",
-            background: "transparent",
-            color: "#5b6cff",
-            fontWeight: "600",
-            cursor: "pointer",
-          }}
-        >
-          Load Journals
-        </button>
-
-        {/* JOURNAL ENTRIES */}
-        <div style={{ marginTop: 25 }}>
-          {entries.length === 0 ? (
-            <p style={{ textAlign: "center", color: "#94a3b8" }}>
-              No journal entries yet.
-            </p>
-          ) : (
-            entries.map((e, i) => (
-              <div key={i} style={{ marginBottom: 12 }}>
-                <p>{e.text}</p>
-                <small style={{ color: "#94a3b8" }}>
-                  {new Date(e.createdAt).toLocaleString()}
-                </small>
-                <hr />
-              </div>
-            ))
-          )}
+        {/* HEADER */}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <h2 style={{ margin: 0 }}>MindWell</h2>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              background: "transparent",
+              border: "none",
+              fontSize: 18,
+              cursor: "pointer",
+              color: textColor,
+            }}
+          >
+            {darkMode ? "☀️" : "🌙"}
+          </button>
         </div>
 
-        {/* MOOD SECTION */}
-        <hr style={{ margin: "30px 0" }} />
-
-        <h3>How are you feeling today?</h3>
-
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={mood}
-          onChange={(e) => setMood(Number(e.target.value))}
-        />
-
-        <p>Mood: {mood}</p>
-
-        <button
-          onClick={saveMood}
-          style={{
-            padding: 10,
-            borderRadius: 8,
-            border: "none",
-            background: "#22c55e",
-            color: "#fff",
-            fontWeight: "600",
-            cursor: "pointer",
-            marginBottom: 20,
-          }}
-        >
-          Save Mood
-        </button>
-
-        {/* MOOD CHART */}
-        {moodHistory.length > 0 && (
-          <Line
-            data={{
-              labels: moodHistory.map((m) =>
-                new Date(m.createdAt).toLocaleDateString()
-              ),
-              datasets: [
-                {
-                  label: "Mood Over Time",
-                  data: moodHistory.map((m) => m.mood),
-                  borderColor: "#5b6cff",
-                  tension: 0.3,
-                },
-              ],
-            }}
-          />
-        )}
-
-        {/* BREATHING SECTION */}
-        <hr style={{ margin: "30px 0" }} />
-
-        <h3>Breathing Exercise</h3>
-
-        <p style={{ color: darkMode ? "#94a3b8" : "#555" }}>
-          Follow the circle to calm your breathing
+        <p style={{ color: muted, marginTop: 6 }}>
+          A private space for reflection and calm
         </p>
 
-        <button
-          onClick={() => setBreathing(!breathing)}
-          style={{
-            padding: "10px 14px",
-            borderRadius: 8,
-            border: "none",
-            background: breathing ? "#ef4444" : "#38bdf8",
-            color: "#000",
-            fontWeight: "600",
-            cursor: "pointer",
-            marginBottom: 20,
-          }}
-        >
-          {breathing ? "Stop Breathing" : "Start Breathing"}
-        </button>
+        {/* JOURNAL */}
+        <section style={{ marginTop: 28 }}>
+          <h3>Journal</h3>
 
-        {breathing && (
-          <div
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              background: "#5b6cff",
-              margin: "20px auto",
-              animation: "breath 8s ease-in-out infinite",
-            }}
+          <input
+            type="password"
+            placeholder="Secret key"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            style={inputStyle(card, textColor)}
           />
-        )}
+
+          <textarea
+            placeholder="Write freely…"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={4}
+            style={{ ...inputStyle(card, textColor), resize: "none" }}
+          />
+
+          <button style={primaryBtn(primary)} onClick={saveJournal}>
+            Save Entry
+          </button>
+
+          <button style={ghostBtn(primary)} onClick={loadJournals}>
+            Load Entries
+          </button>
+
+          {entries.map((e, i) => (
+            <div key={i} style={{ marginTop: 16 }}>
+              <p>{e.text}</p>
+              <small style={{ color: muted }}>
+                {new Date(e.createdAt).toLocaleString()}
+              </small>
+            </div>
+          ))}
+        </section>
+
+        {/* MOOD */}
+        <section style={{ marginTop: 36 }}>
+          <h3>Mood Tracker</h3>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={mood}
+            onChange={(e) => setMood(+e.target.value)}
+            style={{ width: "100%" }}
+          />
+          <p style={{ color: muted }}>Mood today: {mood}</p>
+          <button style={primaryBtn(primary)} onClick={saveMood}>
+            Save Mood
+          </button>
+
+          {moodHistory.length > 0 && (
+            <Line
+              data={{
+                labels: moodHistory.map((m) =>
+                  new Date(m.createdAt).toLocaleDateString()
+                ),
+                datasets: [
+                  {
+                    data: moodHistory.map((m) => m.mood),
+                    borderColor: primary,
+                    tension: 0.35,
+                  },
+                ],
+              }}
+              options={{ plugins: { legend: { display: false } } }}
+            />
+          )}
+        </section>
+
+        {/* BREATHING */}
+        <section style={{ marginTop: 36, textAlign: "center" }}>
+          <h3>Breathing</h3>
+          <button
+            style={ghostBtn(primary)}
+            onClick={() => setBreathing(!breathing)}
+          >
+            {breathing ? "Stop" : "Start"}
+          </button>
+
+          {breathing && (
+            <div
+              style={{
+                width: 140,
+                height: 140,
+                borderRadius: "50%",
+                background: primary,
+                margin: "24px auto",
+                animation: "breathe 8s ease-in-out infinite",
+              }}
+            />
+          )}
+        </section>
+
+        {/* EXPORT */}
+        <section style={{ marginTop: 36 }}>
+          <h3>Your Data</h3>
+          <p style={{ color: muted }}>
+            Download all your encrypted journals and mood history
+          </p>
+          <button style={primaryBtn(primary)} onClick={exportData}>
+            Download JSON
+          </button>
+        </section>
       </div>
     </div>
   );
 }
+
+/* ---- Reusable styles ---- */
+const inputStyle = (bg, color) => ({
+  width: "100%",
+  padding: 12,
+  marginTop: 12,
+  borderRadius: 10,
+  border: "1px solid #e5e7eb",
+  background: bg,
+  color,
+});
+
+const primaryBtn = (color) => ({
+  width: "100%",
+  marginTop: 14,
+  padding: 12,
+  borderRadius: 10,
+  border: "none",
+  background: color,
+  color: "#fff",
+  fontWeight: 600,
+  cursor: "pointer",
+});
+
+const ghostBtn = (color) => ({
+  width: "100%",
+  marginTop: 10,
+  padding: 12,
+  borderRadius: 10,
+  border: `1px solid ${color}`,
+  background: "transparent",
+  color,
+  fontWeight: 600,
+  cursor: "pointer",
+});
 
 export default App;
